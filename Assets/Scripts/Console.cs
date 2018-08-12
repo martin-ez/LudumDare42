@@ -39,7 +39,7 @@ public class Console : MonoBehaviour
     {
         spawner = sp;
         level = lvl;
-        aniInterval = 5f - level;
+        aniInterval = 4f - level;
         rb.mass = 100f / (level + 1);
         leftPos = new Vector3(-span, sp.transform.position.y + 5f, 0f);
         rigthPos = new Vector3(span, sp.transform.position.y + 5f, 0f);
@@ -52,10 +52,8 @@ public class Console : MonoBehaviour
             aniRigth = false;
         }
         aniTime = 0f;
-        scale = new Vector3(Random.Range(0.5f, 2f), Random.Range(0.5f, 1f), Random.Range(0.5f, 2f));
-        transform.Find("Model").localScale = scale;
-        GetComponent<BoxCollider>().size = scale;
-        SetGuideLines(scale);
+        scale = GetComponent<BoxCollider>().size;
+        SetGuideLines();
     }
 
     private void FixedUpdate()
@@ -113,7 +111,7 @@ public class Console : MonoBehaviour
         }
     }
 
-    void SetGuideLines(Vector3 scale)
+    void SetGuideLines()
     {
         guides = transform.Find("GL/Sqr");
         guideLine = transform.Find("GL/Line").GetComponent<LineRenderer>();
