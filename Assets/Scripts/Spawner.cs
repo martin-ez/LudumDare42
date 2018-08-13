@@ -12,9 +12,10 @@ public class Spawner : MonoBehaviour
     public GameObject rareConsole;
     public Color[] colorLevels;
     public int levelUpPoints = 500;
-    public bool playing = true;
+    public GameObject audioManagerPrefab;
+    public bool playing = false;
+    public bool inPlay;
     public float cooldown = 0.5f;
-    public float animationTime = 1f;
 
     public Text textHeight;
     public Transform height;
@@ -22,25 +23,30 @@ public class Spawner : MonoBehaviour
     int currentGen = 0;
     int score;
     float maxHeight;
-    bool inPlay;
     float nextTime;
+    public bool rare;
     Console current;
     Transform bonus;
     GUIManager gui;
+    AudioManager audioManager;
     Camera cam;
+
+    int[] gameStats;
 
     private void Start()
     {
         cam = FindObjectOfType<Camera>();
         gui = FindObjectOfType<GUIManager>();
-        maxHeight = 0f;
         bonus = transform.Find("Bonus");
-        textHeight.text = Mathf.FloorToInt(maxHeight) + "cm";
-        score = 0;
-        currentGen = 0;
-        Time.timeScale = 1f;
+        audioManager = FindObjectOfType<AudioManager>();
 
-        Next();
+        if (audioManager == null)
+        {
+            GameObject am = Instantiate(audioManagerPrefab);
+            audioManager = am.GetComponent<AudioManager>();
+        }
+
+        StartGame();
     }
 
     private void Update()
@@ -50,7 +56,11 @@ public class Spawner : MonoBehaviour
             GameObject[] consoles = generations[currentGen].consoles;
             GameObject toSpawn = consoles[Random.Range(0, consoles.Length)];
             float chance = Random.value;
-            if (chance < 0.02) toSpawn = rareConsole;
+            if (chance < 0.02)
+            {
+                toSpawn = rareConsole;
+                rare = true;
+            }
             current = Instantiate(toSpawn, Vector3.up * 100, Quaternion.identity).GetComponent<Console>();
             current.SetSpawner(this, currentGen);
             inPlay = true;
@@ -61,12 +71,17 @@ public class Spawner : MonoBehaviour
     {
         int scoreAdd = 0;
         // Check Tower height
-        if (current != null)
+        if (playing && current != null)
         {
             scoreAdd += 10;
+            gameStats[1] += 1;
+            if (rare)
+            {
+                gameStats[4] += 1;
+                rare = false;
+            }
             if (current.transform.position.y + (current.scale.y / 2f) >= bonus.position.y)
             {
-                // TODO: height Bonus
                 StartCoroutine(NextHeightAnimation());
             }
             if (current.transform.position.y + (current.scale.y / 2f) > maxHeight)
@@ -80,9 +95,11 @@ public class Spawner : MonoBehaviour
         }
 
         score += scoreAdd;
-        if (score >= (levelUpPoints * currentGen) + levelUpPoints)
+        if (score >= (levelUpPoints * currentGen) + levelUpPoints && currentGen < 6)
         {
             currentGen++;
+            gui.UpdateGeneration(currentGen);
+            audioManager.ChangeLevel(currentGen);
             StartCoroutine(NextCameraColorAnimation());
         }
 
@@ -91,19 +108,31 @@ public class Spawner : MonoBehaviour
         nextTime = Time.time + cooldown;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void StartGame()
     {
-        if (playing && inPlay && other.gameObject.CompareTag("Player"))
-        {
-            GameOver();
-        }
+        playing = false;
+        maxHeight = 0f;
+        textHeight.text = Mathf.FloorToInt(maxHeight * 10) + "cm";
+        score = 0;
+        currentGen = 0;
+        rare = false;
+
+        gameStats = new int[5];
+
+        StartCoroutine(StartGameAnimation());
     }
 
     public void GameOver()
     {
+        audioManager.ChangeLevel(5);
         StartCoroutine(CameraZoomOutAnimation());
         playing = false;
-        gui.GameOver();
+
+        gameStats[0] = score;
+        gameStats[2] = currentGen + 3;
+        gameStats[3] = Mathf.FloorToInt(maxHeight * 10);
+
+        gui.GameOver(gameStats);
     }
 
     IEnumerator NextHeightAnimation()
@@ -117,7 +146,7 @@ public class Spawner : MonoBehaviour
         while (i < 1f)
         {
             time += Time.deltaTime;
-            i = time / animationTime;
+            i = time / 1f;
             transform.position = Vector3.Lerp(startPos, endPos, i);
             yield return null;
         }
@@ -136,13 +165,12 @@ public class Spawner : MonoBehaviour
         while (i < 1f)
         {
             time += Time.deltaTime;
-            i = time / (animationTime * 2f);
+            i = time / 4f;
             cam.backgroundColor = Color.Lerp(startColor, endColor, i);
             yield return null;
         }
 
         cam.backgroundColor = endColor;
-        playing = true;
     }
 
     IEnumerator CameraZoomOutAnimation()
@@ -153,12 +181,32 @@ public class Spawner : MonoBehaviour
         while (i < 1f)
         {
             time += Time.deltaTime;
-            i = time / (animationTime * 15f);
+            i = time / 15f;
             cam.orthographicSize = Mathf.Lerp(5, 20, i);
             yield return null;
         }
 
         cam.orthographicSize = 20;
+    }
+
+    IEnumerator StartGameAnimation()
+    {
+        gui.UpdateGeneration(currentGen);
+        audioManager.ChangeLevel(currentGen);
+
+        float time = 0f;
+        float i = 0f;
+
+        while (i < 1f)
+        {
+            time += Time.deltaTime;
+            i = time / 4f;
+            cam.orthographicSize = Mathf.Lerp(10, 5, i);
+            yield return null;
+        }
+
+        cam.orthographicSize = 5;
         playing = true;
+        Next();
     }
 }

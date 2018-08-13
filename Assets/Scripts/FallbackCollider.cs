@@ -13,7 +13,7 @@ public class FallbackCollider : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (sp.playing && other.gameObject.CompareTag("Player"))
+        if (sp.playing && sp.inPlay && other.gameObject.CompareTag("Player"))
         {
             sp.GameOver();
         }

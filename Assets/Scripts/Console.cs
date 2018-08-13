@@ -103,8 +103,9 @@ public class Console : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (!set && collision.gameObject.CompareTag("Player"))
         {
+            FindObjectOfType<AudioManager>().PlaySound(AudioManager.Sound.Hit);
             contact = true;
         }
     }
