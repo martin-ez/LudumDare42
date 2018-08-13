@@ -5,8 +5,9 @@ ModelImporter:
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: Material.002
-    2100002: Material.003
+    2100000: Material.004
+    2100002: Material.001
+    2100004: Material.003
     2300000: //RootNode
     3300000: //RootNode
     4300000: Cube
@@ -14,12 +15,17 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material.002
+      name: Material.001
     second: {fileID: 2100000, guid: a1081e11f309e4744bece94ee6a86f6e, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Material.003
+    second: {fileID: 2100000, guid: 782c4a91da0bfda40bd3fd0d15fe08c9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.004
     second: {fileID: 2100000, guid: a1081e11f309e4744bece94ee6a86f6e, type: 2}
   materials:
     importMaterials: 1

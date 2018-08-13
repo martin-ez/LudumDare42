@@ -39,8 +39,7 @@ public class Console : MonoBehaviour
     {
         spawner = sp;
         level = lvl;
-        aniInterval = 4f - level;
-        rb.mass = 100f / (level + 1);
+        aniInterval = Mathf.Lerp(4f, 1f, level / 5);
         leftPos = new Vector3(-span, sp.transform.position.y + 5f, 0f);
         rigthPos = new Vector3(span, sp.transform.position.y + 5f, 0f);
         transform.position = leftPos;
@@ -58,8 +57,7 @@ public class Console : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (set) return;
-        if (!falling)
+        if (!set && !falling)
         {
             bool space = Input.GetKey(KeyCode.Space);
             AdjustGuides();
@@ -91,12 +89,12 @@ public class Console : MonoBehaviour
             }
         }
 
-        if (Mathf.Abs(rb.velocity.y) > maxVelocity)
+        if (!set && Mathf.Abs(rb.velocity.y) > maxVelocity)
         {
             rb.velocity = Vector3.down * maxVelocity;
         }
 
-        if (contact && rb.velocity.sqrMagnitude < 0.01f && rb.angularVelocity.sqrMagnitude < 0.01f)
+        if (!set && contact && rb.velocity.sqrMagnitude < 0.01f && rb.angularVelocity.sqrMagnitude < 0.01f)
         {
             set = true;
             spawner.Next();

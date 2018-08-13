@@ -11,16 +11,17 @@ public class Spawner : MonoBehaviour
     public ConsoleGen[] generations;
     public GameObject rareConsole;
     public Color[] colorLevels;
-    public int currentGen = 0;
+    public int levelUpPoints = 500;
     public bool playing = true;
     public float cooldown = 0.5f;
     public float animationTime = 1f;
 
-    public Text textHeigth;
-    public Transform heigth;
+    public Text textHeight;
+    public Transform height;
 
+    int currentGen = 0;
     int score;
-    float maxHeigth;
+    float maxHeight;
     bool inPlay;
     float nextTime;
     Console current;
@@ -32,10 +33,12 @@ public class Spawner : MonoBehaviour
     {
         cam = FindObjectOfType<Camera>();
         gui = FindObjectOfType<GUIManager>();
-        maxHeigth = 0f;
+        maxHeight = 0f;
         bonus = transform.Find("Bonus");
-        textHeigth.text = Mathf.FloorToInt(maxHeigth) + "cm";
+        textHeight.text = Mathf.FloorToInt(maxHeight) + "cm";
         score = 0;
+        currentGen = 0;
+        Time.timeScale = 1f;
 
         Next();
     }
@@ -57,33 +60,32 @@ public class Spawner : MonoBehaviour
     public void Next()
     {
         int scoreAdd = 0;
-        // Check Tower heigth
+        // Check Tower height
         if (current != null)
         {
             scoreAdd += 10;
             if (current.transform.position.y + (current.scale.y / 2f) >= bonus.position.y)
             {
-                // TODO: Heigth Bonus
-                StartCoroutine(NextHeigthAnimation());
+                // TODO: height Bonus
+                StartCoroutine(NextHeightAnimation());
             }
-            if (current.transform.position.y + (current.scale.y / 2f) > maxHeigth)
+            if (current.transform.position.y + (current.scale.y / 2f) > maxHeight)
             {
-                float old = maxHeigth;
-                maxHeigth = current.transform.position.y + (current.scale.y / 2f);
-                heigth.position = current.transform.position + Vector3.up * (current.scale.y / 2f);
-                textHeigth.text = Mathf.FloorToInt(maxHeigth * 10) + "cm";
-                scoreAdd += Mathf.FloorToInt(10 * (maxHeigth - old));
-                if (maxHeigth >= (5 * currentGen) + 5)
-                {
-                    // TODO: Change level
-                    currentGen++;
-                    scoreAdd += 100;
-                    StartCoroutine(NextCameraColorAnimation());
-                }
+                float old = maxHeight;
+                maxHeight = current.transform.position.y + (current.scale.y / 2f);
+                height.position = current.transform.position + Vector3.up * (current.scale.y / 2f);
+                textHeight.text = Mathf.FloorToInt(maxHeight * 10) + "cm";
+                scoreAdd += Mathf.FloorToInt(100 * (maxHeight - old));
             }
         }
 
         score += scoreAdd;
+        if (score >= (levelUpPoints * currentGen) + levelUpPoints)
+        {
+            currentGen++;
+            StartCoroutine(NextCameraColorAnimation());
+        }
+
         gui.UpdateScore(score, scoreAdd);
         inPlay = false;
         nextTime = Time.time + cooldown;
@@ -93,14 +95,18 @@ public class Spawner : MonoBehaviour
     {
         if (playing && inPlay && other.gameObject.CompareTag("Player"))
         {
-            playing = false;
-            Destroy(other.gameObject);
-            // TODO: Game Over
-            gui.GameOver();
+            GameOver();
         }
     }
 
-    IEnumerator NextHeigthAnimation()
+    public void GameOver()
+    {
+        StartCoroutine(CameraZoomOutAnimation());
+        playing = false;
+        gui.GameOver();
+    }
+
+    IEnumerator NextHeightAnimation()
     {
         playing = false;
         Vector3 startPos = transform.position;
@@ -136,6 +142,23 @@ public class Spawner : MonoBehaviour
         }
 
         cam.backgroundColor = endColor;
+        playing = true;
+    }
+
+    IEnumerator CameraZoomOutAnimation()
+    {
+        float time = 0f;
+        float i = 0f;
+
+        while (i < 1f)
+        {
+            time += Time.deltaTime;
+            i = time / (animationTime * 15f);
+            cam.orthographicSize = Mathf.Lerp(5, 20, i);
+            yield return null;
+        }
+
+        cam.orthographicSize = 20;
         playing = true;
     }
 }
