@@ -51,6 +51,11 @@ public class Spawner : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            gui.Exit();
+        }
+
         if (playing && !inPlay && Time.time > nextTime)
         {
             GameObject[] consoles = generations[currentGen].consoles;
@@ -77,6 +82,7 @@ public class Spawner : MonoBehaviour
             gameStats[1] += 1;
             if (rare)
             {
+                scoreAdd += 90;
                 gameStats[4] += 1;
                 rare = false;
             }
@@ -192,6 +198,7 @@ public class Spawner : MonoBehaviour
     IEnumerator StartGameAnimation()
     {
         gui.UpdateGeneration(currentGen);
+        gui.ShowInstructions();
         audioManager.ChangeLevel(currentGen);
 
         float time = 0f;

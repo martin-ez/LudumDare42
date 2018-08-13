@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class GUIManager : MonoBehaviour
 {
+    public RectTransform instructions;
+    public Text instructionsText;
     public RectTransform gameOverPanel;
     public Text score;
     public Text scoreAdd;
@@ -24,6 +26,11 @@ public class GUIManager : MonoBehaviour
         scoreAddColorE = scoreAddColorS;
         scoreAddColorE.a = 0f;
         scoreAdd.color = scoreAddColorE;
+    }
+
+    public void ShowInstructions()
+    {
+        StartCoroutine(InstructionsAnimation());
     }
 
     public void GameOver(int[] gameStats)
@@ -45,11 +52,52 @@ public class GUIManager : MonoBehaviour
         currentGen.text = "" + gen + " ";
     }
 
-
     public void Restart()
     {
         Scene loadedLevel = SceneManager.GetActiveScene();
         SceneManager.LoadScene(loadedLevel.buildIndex);
+    }
+
+    public void Exit()
+    {
+        Application.Quit();
+    }
+
+    IEnumerator InstructionsAnimation()
+    {
+        yield return new WaitForSeconds(2.5f);
+
+        float time = 0f;
+        float i = 0f;
+
+        while (i < 1f)
+        {
+            time += Time.deltaTime;
+            i = time / 2f;
+            instructions.localPosition = Vector3.up * Mathf.Lerp(-45f, 20f, i);
+            yield return null;
+        }
+
+        instructions.localPosition = Vector3.up * 20f;
+
+        yield return new WaitForSeconds(7.5f);
+
+        Color startColor = instructionsText.color;
+        Color endColor = instructionsText.color;
+        endColor.a = 0f;
+
+        time = 0f;
+        i = 0f;
+
+        while (i < 1f)
+        {
+            time += Time.deltaTime;
+            i = time / 4f;
+            instructionsText.color = Color.Lerp(startColor, endColor, i);
+            yield return null;
+        }
+
+        Destroy(instructionsText.gameObject);
     }
 
     IEnumerator ScoreUpdateAnimation()

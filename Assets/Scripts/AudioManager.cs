@@ -16,10 +16,7 @@ public class AudioManager : MonoBehaviour
 
     public enum Sound
     {
-        Hit,
-        Nice,
-        Great,
-        Perfect
+        Hit
     }
 
     [Header("Clips")]
@@ -28,9 +25,6 @@ public class AudioManager : MonoBehaviour
     public AudioClip level3;
 
     public AudioClip hit;
-    public AudioClip nice;
-    public AudioClip great;
-    public AudioClip perfect;
 
     private int currentLevel;
     private bool fading = false;
@@ -189,15 +183,6 @@ public class AudioManager : MonoBehaviour
         {
             case Sound.Hit:
                 clip = hit;
-                break;
-            case Sound.Nice:
-                clip = nice;
-                break;
-            case Sound.Great:
-                clip = great;
-                break;
-            case Sound.Perfect:
-                clip = perfect;
                 break;
         }
         if (clip != null)
