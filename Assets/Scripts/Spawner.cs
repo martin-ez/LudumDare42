@@ -101,7 +101,7 @@ public class Spawner : MonoBehaviour
         }
 
         score += scoreAdd;
-        if (score >= (levelUpPoints * currentGen) + levelUpPoints && currentGen < 6)
+        if (score >= (levelUpPoints * currentGen) + levelUpPoints && currentGen < 5)
         {
             currentGen++;
             gui.UpdateGeneration(currentGen);

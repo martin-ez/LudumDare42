@@ -14,6 +14,8 @@ public class AudioManager : MonoBehaviour
     AudioSource level2Source;
     AudioSource level3Source;
 
+    AudioListener listener;
+
     public enum Sound
     {
         Hit
@@ -43,7 +45,6 @@ public class AudioManager : MonoBehaviour
 
         GameObject sfx2DS = new GameObject("SFX_Source");
         sfx = sfx2DS.AddComponent<AudioSource>();
-        sfx2DS.transform.parent = transform;
         DontDestroyOnLoad(sfx2DS.gameObject);
 
         GameObject source1 = new GameObject("MusicSource Level1");
